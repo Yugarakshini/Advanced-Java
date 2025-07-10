@@ -1,0 +1,179 @@
+package com.jdbc.ProjectJDBC;
+
+
+import java.sql.*;
+import java.util.Scanner;
+
+public class SchoolManagementSystem {
+	static Scanner scan = new Scanner(System.in);
+	public static void main(String[] args) throws SQLException, ClassNotFoundException {
+		
+		Class.forName("com.mysql.cj.jdbc.Driver");
+		Connection connection=DriverManager.getConnection("jdbc:mysql://localhost:3306/school?user=root&password=mysql24");
+		boolean keepRunning = true;
+
+        while (keepRunning) {
+            System.out.println("\n===== MENU =====");
+            System.out.println("1. ADD new Teacher");
+            System.out.println("2. UPDATE Existing Teacher details");
+            System.out.println("3. DELETE Teacher details");
+            System.out.println("4. DELETE ALL Teacher's details");
+            System.out.println("5. View Teacher details");
+            System.out.println("6. VIEW ALL Teachers Details");
+            System.out.println("7. Exit");
+            System.out.print("Enter your choice: ");
+
+            int choice = scan.nextInt();
+	
+	
+	
+	
+        switch (choice) {
+        case 1:
+            addteacher(connection);
+            break;
+        case 2:
+            updateteacher(connection);
+            break;
+        case 3:
+            deleteteacher(connection);
+            break;
+        case 4:
+            deleteAllteachers(connection);
+            break;
+        case 5:
+            viewteacher(connection);
+            break;
+        case 6:
+            viewAllteachers(connection);
+            break;
+        case 7:
+            keepRunning = false;
+            System.out.println("Exiting... Thank you!");
+            break;
+        default:
+            System.out.println("Invalid choice. Try again.");
+    }
+}
+
+connection.close();
+	}
+//Insert
+public static void addteacher(Connection conn) throws SQLException {
+    System.out.print("Enter ID: ");
+    int id = scan.nextInt();
+    scan.nextLine();
+    System.out.print("Enter TeacherName: ");
+    String name = scan.nextLine();
+    System.out.print("Enter Age: ");
+    int age = scan.nextInt();
+    scan.nextLine();
+    System.out.print("Enter Dept: ");
+    String dept = scan.nextLine();
+    System.out.print("Enter DOB (yyyy-mm-dd): ");
+    String dob = scan.nextLine();
+    System.out.print("Enter Salary: ");
+    double salary = scan.nextDouble();
+    scan.nextLine();
+
+    String sql = "INSERT INTO teacher (id, teachername, age, dept, dob, salary) VALUES (?, ?, ?, ?, ?, ?)";
+    PreparedStatement stmt = conn.prepareStatement(sql);
+    stmt.setInt(1, id);
+    stmt.setString(2, name);
+    stmt.setInt(3, age);
+    stmt.setString(4, dept);
+    stmt.setString(5, dob);
+    stmt.setDouble(6, salary);
+    stmt.executeUpdate();
+    System.out.println("Teacher added successfully!");
+}
+
+// Update
+public static void updateteacher(Connection conn) throws SQLException {
+    System.out.print("Enter ID to update: ");
+    int id = scan.nextInt();
+    scan.nextLine();
+    System.out.print("Enter new TeacherName: ");
+    String name = scan.nextLine();
+
+    String sql = "UPDATE teacher SET teachername=? WHERE id=?";
+    PreparedStatement stmt = conn.prepareStatement(sql);
+    stmt.setString(1, name);
+    stmt.setInt(2, id);
+    int rows = stmt.executeUpdate();
+
+    if (rows > 0) System.out.println("teacher updated.");
+    else System.out.println("Teacher ID not found.");
+}
+
+// Delete one Teacher
+public static void deleteteacher(Connection conn) throws SQLException {
+    System.out.print("Enter ID to delete: ");
+    int id = scan.nextInt();
+    String sql = "DELETE FROM teacher WHERE id=?";
+    PreparedStatement stmt = conn.prepareStatement(sql);
+    stmt.setInt(1, id);
+    int rows = stmt.executeUpdate();
+
+    if (rows > 0) System.out.println("teacher deleted.");
+    else System.out.println("teacher ID not found.");
+}
+
+// Delete all
+public static void deleteAllteachers(Connection conn) throws SQLException {
+    String sql = "DELETE FROM teacher";
+    Statement stmt = conn.createStatement();
+    stmt.executeUpdate(sql);
+    System.out.println("All teacher records deleted.");
+}
+
+// View one Teacher
+public static void viewteacher(Connection conn) throws SQLException {
+    System.out.print("Enter ID to view: ");
+    int id = scan.nextInt();
+    String sql = "SELECT * FROM teacher WHERE id=?";
+    PreparedStatement stmt = conn.prepareStatement(sql);
+    stmt.setInt(1, id);
+    ResultSet rs = stmt.executeQuery();
+
+    if (rs.next()) {
+        System.out.println("\n====== TEACHER DETAILS ======");
+        System.out.println("ID: " + rs.getInt("id"));
+        System.out.println("Name: " + rs.getString("teachername"));
+        System.out.println("Age: " + rs.getInt("age"));
+        System.out.println("Dept: " + rs.getString("dept"));
+        System.out.println("DOB: " + rs.getDate("dob"));
+        System.out.println("Salary: " + rs.getDouble("salary"));
+    } else {
+        System.out.println("Teacher not found.");
+    }
+}
+
+// View all Teacher
+
+public static void viewAllteachers(Connection conn) throws SQLException {
+    String sql = "SELECT * FROM teacher";
+    Statement stmt = conn.createStatement();
+    ResultSet rs = stmt.executeQuery(sql);
+
+    System.out.println("\n====== ALL TEACHER DETAILS ======");
+    while (rs.next()) {
+        System.out.println("ID: " + rs.getInt("id") +
+                           ", Name: " + rs.getString("teachername") +
+                           ", Age: " + rs.getInt("age") +
+                           ", Dept: " + rs.getString("dept") +
+                           ", DOB: " + rs.getDate("dob")+
+                           ", Salary: " + rs.getDouble("salary"));
+    }
+}
+}
+
+
+
+	
+
+	
+
+
+
+
